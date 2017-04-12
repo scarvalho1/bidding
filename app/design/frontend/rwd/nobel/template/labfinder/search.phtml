@@ -1,0 +1,118 @@
+<?php
+$helper = $this->helper('nobel_labfinder');
+?>
+<div class="row">
+    <h3 class="b mainTitle"><?php echo $this->__('Find a Lab'); ?></h3>
+    <h4 class="b"><?php echo $this->__('Find dental labs that provide authentic NobelProcera restorations near you'); ?></h4>
+
+    <div class="mapWrapper">
+        <form method="post" id="geocoding_form">
+            <div class="input">
+                <input type="text" id="address" name="address"
+                       placeholder="<?php echo $this->__('Search for ZIP or City, State or Country'); ?>"/>
+                <input type="submit" id="search" value="<?php echo $this->__('Search'); ?>"/>
+                <span class="searchIcon"></span>
+                <div id="toggleFilters"><?php echo $this->__('Advanced search'); ?><span class="arrow down"></span>
+                </div>
+            </div>
+        </form>
+        <div class="labsFilterWrapper slideD slideU minimized">
+            <div class="labsFilterInnerWrap">
+                <div class="column1">
+                    <div class="columnTitle"><?php echo $this->__('Distance'); ?></div>
+                    <div class="filterItem">5 km
+                        <section title=".findalabFilters" style="background: none; border: none; box-shadow: none;">
+                            <!-- .findalabFilters -->
+                            <div class="findalabFilters">
+                                <input type="checkbox" value="None" id="05km" name="radius" data-val="5">
+                                <label for="05km"></label>
+                            </div>
+                            <!-- end .findalabFilters -->
+                        </section>
+                    </div>
+                    <div class="filterItem">10 km
+                        <section title=".findalabFilters" style="background: none; border: none; box-shadow: none;">
+                            <!-- .findalabFilters -->
+                            <div class="findalabFilters">
+                                <input type="checkbox" value="None" id="10km" name="radius" data-val="10">
+                                <label for="10km"></label>
+                            </div>
+                            <!-- end .findalabFilters -->
+                        </section>
+                    </div>
+                    <div class="filterItem">15 km
+                        <section title=".findalabFilters" style="background: none; border: none; box-shadow: none;">
+                            <!-- .findalabFilters -->
+                            <div class="findalabFilters">
+                                <input type="checkbox" value="None" id="15km" name="radius" data-val="15">
+                                <label for="15km"></label>
+                            </div>
+                            <!-- end .findalabFilters -->
+                        </section>
+                    </div>
+                    <div class="filterItem">20 km
+                        <section title=".findalabFilters" style="background: none; border: none; box-shadow: none;">
+                            <!-- .findalabFilters -->
+                            <div class="findalabFilters">
+                                <input type="checkbox" value="None" id="20km" name="radius" data-val="20">
+                                <label for="20km"></label>
+                            </div>
+                            <!-- end .findalabFilters -->
+                        </section>
+                    </div>
+                    <div class="filterItem">25 km
+                        <section title=".findalabFilters" style="background: none; border: none; box-shadow: none;">
+                            <!-- .findalabFilters -->
+                            <div class="findalabFilters">
+                                <input type="checkbox" value="None" id="25km" name="radius" data-val="25">
+                                <label for="25km"></label>
+                            </div>
+                            <!-- end .findalabFilters -->
+                        </section>
+                    </div>
+                </div>
+                <div class="column2">
+                    <div class="columnTitle"><?php echo $this->__('Speciality services'); ?></div>
+                    <?php
+                    $services = $helper->getServices();
+                    foreach ($services as $key => $service):
+                        ?>
+                        <div class="filterItem">
+
+
+                            <div class="findalabFilters">
+                                <input type="checkbox" value="None" id="service-<?php echo $key; ?>" name="services"
+                                       data-val="<?php echo $key; ?>">
+                                <label for="service-<?php echo $key; ?>"></label>
+                            </div>
+
+                            <div class="InnerTextWrap">
+                                <?php echo $this->__($service); ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+                <div class="column3">
+                    <div class="columnTitle"><?php echo $this->__('Products offered'); ?></div>
+                    <?php
+                    $products = $helper->getProducts();
+                    foreach ($products as $key => $product):
+                        ?>
+                        <div class="filterItem">
+
+                            <div class="findalabFilters">
+                                <input type="checkbox" value="None" id="product-<?php echo $key; ?>" name="products"
+                                       data-val="<?php echo $key; ?>">
+                                <label for="product-<?php echo $key; ?>"></label>
+                            </div>
+                            <div class="InnerTextWrap"><?php echo $this->__($product); ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Nobel_Bidding>
+            <active>true</active>
+            <codePool>local</codePool>
+        </Nobel_Bidding>
+    </modules>
+</config>

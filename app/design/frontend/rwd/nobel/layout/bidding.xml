@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <bidding_index_index>
+        <reference name="root">
+            <action method="setTemplate">
+                <tpl>bidding/page/1column-full.phtml</tpl>
+            </action>
+        </reference>
+        <reference name="head">
+            <action method="addItem">
+                <type>skin_css</type>
+                <name>css/style.css</name>
+            </action>
+        </reference>
+
+        <reference name="head">
+            <action method="addItem">
+                <type>skin_js</type>
+                <name>js/jquery1.9.1.js</name>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="core/template" name="bidding_bid_index_bids" template="bidding/bids.phtml"/>
+        </reference>
+    </bidding_index_index>
+
+</layout>

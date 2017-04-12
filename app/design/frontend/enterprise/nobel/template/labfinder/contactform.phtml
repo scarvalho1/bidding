@@ -1,0 +1,123 @@
+<?php
+$baseURL = $this->getUrl('footer/terms-of-use');
+$url = str_ireplace("store", "www", $baseURL);
+?>
+<div class="Overlay-bg">
+    <div class="Overlay-content js-content">
+        <button type="button" id="cboxClose">close</button>
+        <h4 class="b"><?php echo $this->__('Contact form'); ?></h4>
+        <div id="labInfo"></div>
+        <form method="post" id="emailLabform" action="<?php echo $this->getUrl('findalab/index/email'); ?>">
+            <div class="formWrapper">
+                <div class="terms"><?php echo $this->__('Upon clicking submit an email will be sent to the lab, as well as a confirmation email to yourself'); ?>.<br/>
+                </div>
+                <input type="text" class="fullWidth" placeholder="<?php echo $this->__('Practice name'); ?> " name="company"/>
+                <div id="company" class="fullWidth validationMsg"><?php echo $this->__('Required field'); ?></div>
+
+                <input type="text" class="halfWidth" placeholder="<?php echo $this->__('First name'); ?>"
+                       name="firstName"/>
+                <input type="text" class="halfWidth ml" placeholder="<?php echo $this->__('Last name'); ?>"
+                       name="lastName"/>
+                <div class="validationWrapper">
+                    <span id="firstName" class="validationMsg"><?php echo $this->__('Required field'); ?></span>
+                    <span id="lastName" class="validationMsg right"><?php echo $this->__('Required field'); ?></span>
+                </div>
+                <input type="text" class="halfWidth" placeholder="<?php echo $this->__('Email address'); ?>"
+                       name="email"/>
+                <input type="text" class="halfWidth ml" placeholder="<?php echo $this->__('Phone number'); ?>"
+                       name="phone"/>
+                <div class="validationWrapper">
+                    <span id="email" class="validationMsg"><?php echo $this->__('Required field'); ?></span>
+                    <span id="phone" class="validationMsg right"><?php echo $this->__('Required field'); ?></span>
+                </div>
+                <textarea placeholder="<?php echo $this->__('I am interested in'); ?>...." name="message"></textarea>
+                <div id="message" class="fullWidth validationMsg"
+                     style="margin-top: 0px;"><?php echo $this->__('Required field'); ?></div>
+
+                <div class="terms sec">
+                    <input type="checkbox" class="required-entry" value="yes" id="agree" name="agree">
+                    <label for="agree"><?php echo $this->__('By submitting you agree to be contacted by the lab regarding your interest and agree to our'); ?> <a target="_blank" href="<?= $url ?>" class="privacyPolicy"> <?php echo $this->__("privacy policy"); ?></a>.</label>
+                </div>
+
+                <input type="hidden" name="labEmail" id="labEmail">
+                <input type="hidden" name="labName" id="labName">
+                <input type="hidden" name="labID" id="labID">
+                <input type="submit" class="submit" value="<?php echo $this->__('SEND'); ?>"/>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    //< ![CDATA[
+
+    //]]>
+    jQuery(document).ready(function () {
+        var emailForm = new VarienForm('emailLabform', true);
+        var textInputs = jQuery("#emailLabform input[type=text], #emailLabform textarea");
+        jQuery("#emailLabform .submit").click(function (e) {
+            var passed = true;
+            var rows = 0;
+
+            function resizeForm() {
+                var hght = ((610) + (rows * 15));
+                hght = hght.toString();
+                hght = hght + "px";
+                jQuery(".Overlay-content.open").css('height', hght);
+            }
+
+            function trackRows(did, type) {
+                if (did === "company") {
+                    if (type) rows++;
+                    else rows--;
+                }
+                if (((did === "firstName") || (did === "lastName")) && (rows < 2)) {
+                    if (type) rows++;
+                    else rows--;
+                }
+                if (((did === "email") || (did === "phone")) && (rows < 3)) {
+                    if (type) rows++;
+                    else rows--;
+                }
+                if (did === "message") {
+                    if (type) rows++;
+                    else rows--;
+                }
+                if (type === false) resizeForm();
+            }
+
+            textInputs.each(function (indx) {
+                var $this = jQuery(this);
+                if ($this.val() == '') {
+                    passed = false;
+                    $this.addClass('invalid');
+                    var id = $this.attr('name');
+                    jQuery("#" + id).slideDown('fast');
+                    trackRows(id, true);
+                    if (indx === 5) resizeForm();
+                }
+
+                textInputs.focus(function () {
+                    if (jQuery(this).hasClass('invalid')) {
+                        textInputs.keyup(function () {
+                            if ((jQuery(this).hasClass('invalid')) && (jQuery(this).val() != '')) {
+                                jQuery(this).removeClass('invalid');
+                                var id = jQuery(this).attr('name');
+                                jQuery("#" + id).slideUp('fast');
+                                trackRows(id, false);
+                            }
+                        });
+                    }
+                });
+            });
+
+            if (emailForm.validator && !emailForm.validator.validate()) {
+                e.preventDefault();
+                passed = false;
+            }
+            if (!passed) {
+                return false;
+            }
+        });
+    });
+</script>

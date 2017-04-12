@@ -1,0 +1,211 @@
+<?php
+$baseURL = $this->getUrl('footer/terms-of-use');
+$url = str_ireplace("store", "www", $baseURL);
+
+$locale = Mage::app()->getLocale()->getLocaleCode();
+?>
+<style>nav.mod-nav-sub {
+        display: none;
+    }</style>
+<h3 class="b releaseFormTitle"><?php echo $this->__("Release form"); ?></h3>
+<form class="partnerForm" id="partnerForm" method="post" action="partnersubmit">
+
+    <h4 class="b"><?php echo $this->__('Contact details to be displayed on our Find a Lab service'); ?></h4>
+
+    <div class="formWrapper">
+
+        <span class="formInnerWrap">
+            <span class="inputWrap">
+                <input type="text" class="halfWidth required-entry"
+                       placeholder="* <?php echo $this->__('Laboratory name'); ?>" name="labName"/>
+            </span>
+
+            <span class="inputWrap">
+                <input type="text" class="halfWidth ml required-entry"
+                       placeholder="* <?php echo $this->__('Customer account number'); ?>" name="customerNumber"/>
+            </span>
+
+            <span class="inputWrap">
+                <input type="text" class="halfWidth required-entry"
+                       placeholder="* <?php echo $this->__('First name'); ?>" name="firstName"/>
+            </span>
+
+            <span class="inputWrap">
+                <input type="text" class="halfWidth ml required-entry"
+                       placeholder="* <?php echo $this->__('Last name'); ?>" name="lastName"/>
+            </span>
+
+            <span class="inputWrap">
+                <input type="text" class="halfWidth required-entry"
+                       placeholder="* <?php echo $this->__('Street address'); ?>" name="address"/>
+            </span>
+
+            <span class="inputWrap">
+                <input type="text" class="halfWidth ml required-entry validate-zip-international"
+                       placeholder="* <?php echo $this->__('Zip code'); ?>" name="zip"/>
+            </span>
+
+            <span class="inputWrap">
+                <input type="text" class="halfWidth required-entry" placeholder="* <?php echo $this->__('City'); ?>"
+                       name="city"/>
+            </span>
+
+            <span class="inputWrap">
+                <input type="text" class="halfWidth ml required-entry" placeholder="* <?php echo $this->__('State'); ?>"
+                       name="state"/>
+            </span>
+
+            <span class="inputWrap">
+                <input type="text" class="halfWidth required-entry" placeholder="* <?php echo $this->__('Country'); ?>"
+                       name="country"/>
+            </span>
+
+            <span class="inputWrap">
+                <input type="text" class="halfWidth ml required-entry validate-email"
+                       placeholder="* <?php echo $this->__('Contact email'); ?>" name="email"/>
+            </span>
+
+            <span class="inputWrap">
+                <input type="text" class="halfWidth"
+                       placeholder="<?php echo $this->__('Web address'); ?>" name="website"/>
+            </span>
+
+            <span class="inputWrap">
+                <input type="text" class="halfWidth ml required-entry validate-number"
+                       placeholder="* <?php echo $this->__('Phone number'); ?>" name="phone"/>
+            </span>
+        </span>
+        <div class="checkBoxs left">
+            <span class="divTitle"><?php echo $this->__("I can provide the following authentic NobelProcera products to clinicians (choose all that apply)"); ?>:</span>
+
+            <fieldset>
+                <div class="filterItem"><?php echo $this->__("Crowns and bridges"); ?>
+                    <div title=".findalabFilters" class="wrr">
+                        <div class="findalabFilters">
+                            <input type="checkbox" value="001" id="crownandbridges" name="products[]" data-val="001">
+                            <label for="crownandbridges"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filterItem"><?php echo $this->__("Implant crowns and abutments"); ?>
+                    <div title=".findalabFilters" class="wrr">
+                        <div class="findalabFilters">
+                            <input type="checkbox" value="002" id="implantcrowns" name="products[]" data-val="002">
+                            <label for="implantcrowns"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filterItem"><?php echo $this->__("Implant bridges"); ?>
+                    <div title=".findalabFilters" class="wrr">
+                        <div class="findalabFilters">
+                            <input type="checkbox" value="003" id="implantbridges" name="products[]" data-val="003">
+                            <label for="implantbridges"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filterItem"><?php echo $this->__("Implant bars"); ?>
+                    <div title=".findalabFilters" class="wrr">
+                        <div class="findalabFilters">
+                            <input type="checkbox" value="004" class="validate-one-required-by-name" id="implantbars"
+                                   name="products[]" data-val="004">
+                            <label for="implantbars"></label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+        <div class="checkBoxs right">
+            <span class="divTitle"><?php echo $this->__("I can provide the following services to clinicians (choose all that apply)"); ?>:</span>
+            <fieldset>
+
+                <div class="filterItem"><?php echo $this->__("NobelClinician SmartFusion"); ?>
+                    <div title=".findalabFilters" class="wrr">
+                        <div class="findalabFilters">
+                            <input type="checkbox" value="001" id="NobelClinician" name="services[]" data-val="001">
+                            <label for="NobelClinician"></label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filterItem">
+                    <div title=".findalabFilters" class="wrr<?php if ($locale != 'en_US') { ?> intl<?php } ?>">
+                        <div class="findalabFilters">
+                            <input type="checkbox" value="002" id="restorativeplanning" name="services[]"
+                                   data-val="002">
+                            <label for="restorativeplanning"></label>
+                        </div>
+                    </div>
+                    <?php echo $this->__("Restorative planning support with NobelClinician"); ?>
+                </div>
+
+                <div class="filterItem">
+                    <div title=".findalabFilters" class="wrr<?php if ($locale != 'en_US') { ?> intl<?php } ?>">
+                        <div class="findalabFilters">
+                            <input type="checkbox" value="003" id="all-on-4" name="services[]" data-val="003">
+                            <label for="all-on-4"></label>
+                        </div>
+                    </div>
+                    <?php echo $this->__("All-on-4 conversions"); ?>
+                </div>
+
+                <div class="filterItem">
+                    <div title=".findalabFilters" class="wrr<?php if ($locale != 'en_US') { ?> intl<?php } ?>">
+                        <div class="findalabFilters">
+                            <input type="checkbox" value="004" id="acceptintraoralscan" name="services[]"
+                                   data-val="004">
+                            <label for="acceptintraoralscan"></label>
+                        </div>
+                    </div>
+                    <?php echo $this->__("Accept intraoral scan files"); ?>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="fieldWrapper">
+            <input type="checkbox" class="required-entry" value="<?php echo $this->__('yes'); ?>" id="releaseYes"
+                   name="releaseYes">
+            <label for="releaseYes"><?php
+                echo $this->__("Yes, I would like to see my company's contact details in the Find a Lab on the Nobel Biocare web page for potential customers to see");?>. <span class="leftAdjust"><?php
+                    echo $this->__("Your data will be processed in accordance with Nobel Biocare %s", sprintf('<a style="margin-left: 3px;" target="_blank" href="%s" class="privacyPolicy">%s</a>',
+                        $url,
+                        $this->__("privacy policy"))); ?>.</span></label>
+        </div>
+
+        <div class="terms">
+            <?php echo $this->__("To be featured in Find a Lab you must have an active NobelDesign software license and deliver authentic NobelProcera restorations when prescribed by the clinician. Nobel Biocare retains the right to discontinue this service at any time. Nobel Biocare retains the rights not to publish profiles that contain incomplete or inaccurate information"); ?>.
+        </div>
+        <input type="submit" class="submit" value="<?php echo $this->__('SEND'); ?>"/>
+    </div>
+</form>
+
+<script type="text/javascript">
+
+    //< ![CDATA[
+
+    //]]>
+    jQuery(document).ready(function () {
+        var partnerForm = new VarienForm('partnerForm', true);
+
+        jQuery(".submit").click(function () {
+            if (partnerForm.validator && !partnerForm.validator.validate()) {
+                console.log("FAIL");
+            }
+        });
+
+        function validateURL(value) {
+            return /[-a-zA-Z0-9@:%_\+.~#?&//=]{2,256}\.[a-z]{2,4}\b(\/[-a-zA-Z0-9@:%_\+.~#?&//=]*)?(\?([-a-zA-Z0-9@:%_\+.~#?&//=]+)|)$/i.test(value);
+        }
+
+        jQuery(".validate-custom-url").blur(function () {
+            var val = jQuery(this).val();
+            Validation.add('validate-custom-url', 'Please enter a valid URL', function (val) {
+                var tested = validateURL(val);
+                return tested;
+            })
+        });
+    });
+
+</script>

@@ -1,0 +1,10 @@
+<?php
+echo "HELLO IT WORKS";
+$products = Mage::getModel('nobel_bidding/bid')->loadAllHighestValue();
+
+foreach( $products as $product){
+
+   var_dump($product);
+
+}
+?>

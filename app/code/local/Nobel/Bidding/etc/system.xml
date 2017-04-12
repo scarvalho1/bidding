@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<config>
+    <sections>
+        <nobel_bidding translate="label" module="nobel_bidding">
+            <label>Default Bids</label>
+            <tab>importdesc</tab>
+            <frontend_type>text</frontend_type>
+            <show_in_default>1</show_in_default>
+            <show_in_website>1</show_in_website>
+            <show_in_store>1</show_in_store>
+            <sort_order>15</sort_order>
+            <groups>
+                <general translate="label">
+                    <label>Default bid</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>20</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>1</show_in_website>
+                    <show_in_store>1</show_in_store>
+                    <fields>
+                        <bid_default>
+                            <frontend_type>text</frontend_type>
+                            <label>Default Bid Value</label>
+                            <comment>Default Bid Price</comment>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>1</show_in_store>
+                        </bid_default>
+                    </fields>
+                </general>
+            </groups>
+        </nobel_bidding>
+    </sections>
+</config>

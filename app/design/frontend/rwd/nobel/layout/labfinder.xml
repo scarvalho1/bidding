@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<layout version="0.1.0">
+    <findalab_index_index>
+        <reference name="root">
+            <action method="setTemplate">
+                <tpl>labfinder/page/1column-full.phtml</tpl>
+            </action>
+        </reference>
+        <reference name="head">
+            <action method="addItem">
+                <type>skin_css</type>
+                <name>css/labfinder.css</name>
+            </action>
+        </reference>
+        <reference name="head">
+            <action method="addItem">
+                <type>skin_js</type>
+                <name>js/labfinder/gmaps.js</name>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="core/template" name="labfinder_labs_index_search" template="labfinder/search.phtml"/>
+            <block type="core/template" name="labfinder_labs_index_maps" template="labfinder/maps.phtml"/>
+            <block type="core/template" name="labfinder_labs_index_contactform" template="labfinder/contactform.phtml"/>
+            <block type="core/template" name="labfinder_labs_index_results" template="labfinder/results.phtml"/>
+        </reference>
+    </findalab_index_index>
+
+    <findalab_index_partner>
+        <reference name="root">
+            <action method="setTemplate">
+                <tpl>labfinder/page/1column-full.phtml</tpl>
+            </action>
+        </reference>
+        <reference name="head">
+            <action method="addItem">
+                <type>skin_css</type>
+                <name>css/labfinder.css</name>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="nobel_labfinder/partner" name="labfinder_labs_index_partner"
+                   template="labfinder/partner.phtml"/>
+        </reference>
+    </findalab_index_partner>
+
+    <findalab_index_partnersubmit>
+        <reference name="root">
+            <action method="setTemplate">
+                <tpl>labfinder/page/1column-full.phtml</tpl>
+            </action>
+        </reference>
+        <reference name="head">
+            <action method="addItem">
+                <type>skin_css</type>
+                <name>css/labfinder.css</name>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="nobel_labfinder/thankyou" name="labfinder_labs_index_thankyou"
+                   template="labfinder/thankyou.phtml"/>
+        </reference>
+    </findalab_index_partnersubmit>
+
+    <findalab_index_thankyou>
+        <reference name="root">
+            <action method="setTemplate">
+                <tpl>labfinder/page/1column-full.phtml</tpl>
+            </action>
+        </reference>
+        <reference name="head">
+            <action method="addItem">
+                <type>skin_css</type>
+                <name>css/labfinder.css</name>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="nobel_labfinder/thankyou" name="labfinder_labs_index_thankyou"
+                   template="labfinder/thankyou.phtml"/>
+        </reference>
+    </findalab_index_thankyou>
+</layout>

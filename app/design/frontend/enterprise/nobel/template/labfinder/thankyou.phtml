@@ -1,0 +1,22 @@
+<?php
+/** @var Nobel_Labfinder_Block_Thankyou $this * */
+?>
+<br>
+<?php if ($this->isPartner() === true): ?>
+    <h4 class="b">
+        <?php echo $this->__('Thank you for submitting your information. Next, our customer service team will review the information, update your profile and publish it'); ?>
+        .
+        <span style="color:red;"> <?php echo $this->__('You will receive an email once your profile is live'); ?>
+            .</span><?php echo $this->__('This may take up to two weeks'); ?>.
+    </h4>
+<?php endif; ?>
+<?php if ($this->isContact() === true): ?>
+    <h3 class="b"><?php echo $this->__('Thank you for submitting'); ?></h3>
+    <h4 class="b"><?php echo $this->__('Your message has been transmitted to the lab'); ?>.</h4>
+<?php endif; ?>
+
+<?php if ($this->isError() === true): ?>
+    <h3 class="b"><?php echo $this->__('Error'); ?></h3>
+    <h4 class="b"><?php echo $this->__('There has been an issue processing your request. Please contact customer support'); ?>.</h4>
+<?php endif; ?>
+

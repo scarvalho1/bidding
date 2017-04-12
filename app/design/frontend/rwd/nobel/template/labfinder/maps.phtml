@@ -1,0 +1,482 @@
+<script src="https://maps.google.com/maps/api/js?sensor=true"></script>
+<style>nav.mod-nav-sub {
+        display: none;
+    }</style>
+<script type="text/javascript">
+    var map;
+    var markers = [];
+    var zoomLevel = null;
+    var resultCenter = null;
+
+    jQuery(document).ready(function () {
+        var services = [];
+        var products = [];
+        var radius = 0;
+        var transitionID;
+        var transitionEnd = 'transitionend webkitTransitionEnd oTransitionEnd otransitionend webkitAnimationEnd mozAnimationEnd';
+        var resizeID, mapPanZoomTimeOut, searchCompleted;
+
+        /** EVENT HANDLER for panning/zooming on map */
+        var recalcBounds = function () {
+            clearTimeout(mapPanZoomTimeOut);
+            mapPanZoomTimeOut = setTimeout(showVisibleMarkers, 140);
+        };
+
+        map = new GMaps({div: '#map', lat: 40.7740073, lng: -74.1440781, zoom: 6});
+
+
+        /** EVENT LISTENER for panning/zooming on map */
+        map.on('bounds_changed', recalcBounds);
+
+        function initMap() {
+
+            GMaps.geolocate({
+                success: function (position) {
+                    map.setCenter(position.coords.latitude, position.coords.longitude);
+                    showMsg("<?php echo $this->__('Geolocation complete');?>", true);
+                },
+                error: function (error) {
+                    console.log(error.message);
+                    showMsg("<?php echo $this->__('Google geocode service not responding');?>!", true);
+                },
+                not_supported: function () {
+                    showMsg("<?php echo $this->__('Your browser does not support geolocation');?>", true);
+                }
+            });
+        }
+
+        initMap();
+        /** EVENT HANDLER for minimizing Advanced Search Filters  */
+        var minimizeFilts = function () {
+            jQuery(".labsFilterWrapper").toggleClass("minimized");
+        };
+
+        /** EVENT HANDLER Advanced Search Filters Button Click */
+        var toggleFilters = function () {
+            var $this = jQuery("#toggleFilters");
+            jQuery(".labsFilterWrapper").toggleClass('slideU').on(transitionEnd, function () {
+                clearTimeout(transitionID);
+                transitionID = setTimeout(minimizeFilts, 65);
+            });
+            $this.children('.arrow').toggleClass('down').toggleClass("up");
+        };
+
+        /** Advanced Search Filters Arrow Click EVENT LISTENER */
+        jQuery("#toggleFilters").click(toggleFilters);
+
+
+        /** Ajax function for asyncronously getting products/services list */
+        function getAttributeHtml(attributeList) {
+            var htmlPartial = '<ul>';
+            for (var i = 0; i < attributeList.length; i++) {
+                htmlPartial += '<li><p>' + attributeList[i].displayName + '</p></li>'
+            }
+
+            htmlPartial += '<ul>';
+            return htmlPartial;
+        }
+
+        /** Special LIVE element (element added after dom load) EVENT LISTENER */
+        jQuery(".resultsWrapper").on('click', '.panmarker', function (e) {
+            e.preventDefault();
+            var position, lat, lng, $index;
+            $index = jQuery(this).attr('data-index');
+            position = map.markers[$index].getPosition();
+            lat = position.lat();
+            lng = position.lng();
+            map.off('bounds_changed');
+            map.setZoom(11);
+            map.setCenter(lat, lng, function () {
+                setTimeout(function () {
+                    map.on('bounds_changed', recalcBounds);
+                }, 400);
+            });
+        });
+
+        /** EVENT HANDLER for showing messages */
+        function showMsg(msg, fade) {
+            jQuery("#resultsCount").html(msg);
+            jQuery("#resultsCount").slideDown('fast');
+            if (fade) {
+                jQuery("#resultsCount").delay(3000).fadeOut('slow');
+            }
+        }
+
+        /** EVENT HANDLER for rendering list of Lab results after Search completion */
+        var renderResults = function (data, stats) {
+
+            /**INNER EVENT HANDLER for focus action on map markers*/
+            var focusMarker = function (e) {
+                var lbid = "labid-" + e.labid;
+                var toggleResults = function (toggle) {
+                    jQuery(".resultRow").each(function (indx) {
+                        if (toggle === 'hide') {
+                            jQuery(this).attr('id') !== lbid && jQuery(this).slideUp('fast');
+                        } else {
+                            jQuery(this).slideDown('fast');
+                        }
+                    });
+                };
+                var lat = e.position.lat();
+                var lng = e.position.lng();
+                for (var zp = 0; zp < map.markers.length; zp++) {
+                    var cur = map.markers[zp];
+                    e !== cur && cur.setVisible(false);
+                }
+
+                map.setCenter(lat, lng);
+                map.setZoom(15);
+                toggleResults('hide');
+                jQuery("#resultsCount").slideUp('fast');
+                jQuery("#resultsCount").html('');
+                jQuery("#resetMarkers").addClass('dwn');
+                jQuery(".mapInnerWrapper").on('click', '#resetMarkers', function () {
+                    jQuery(this).removeClass('dwn');
+                    for (var zp = 0; zp < map.markers.length; zp++) {
+                        var cur = map.markers[zp];
+                        cur.setVisible(true);
+                    }
+                    map.hideInfoWindows();
+                    toggleResults(false);
+                    jQuery(".mapInnerWrapper").off('click');
+                    setTimeout(function () {
+                        map.setZoom(zoomLevel);
+                        map.setCenter(resultCenter.lat(), resultCenter.lng());
+                    }, 250);
+                });
+            };
+
+            markers = [];
+
+            var resCount = null;
+            if (data.length > 1) {
+                resCount = data.length + " <?php echo $this->__('labs'); ?> <?php echo $this->__('found');?>";
+            } else if (data.length === 1) {
+                resCount = "<?php echo $this->__('1 lab found');?>";
+            } else if (data.length === 0) {
+                resCount = data.length + " <?php echo $this->__('labs'); ?> <?php echo $this->__('found');?>";
+            }
+            showMsg(resCount, true);
+            jQuery(".resultsWrapper").html('');
+            if (data.length === 0) {
+                jQuery("#loadbar").slideUp('fast');
+                jQuery("#map").slideDown('fast');
+            } else {
+                var points = [];
+                for (var i = 0; i < data.length; i++) {
+                    var labid = data[i].lab_id;
+//                    setTimeout(getLabAttrs(labid), 2);
+                    var wsite = data[i].website;
+                    var prefx = 'http://';
+                    if (wsite.substr(0, prefx.length) !== prefx) wsite = prefx + wsite;
+                    var phone = data[i].phone;
+                    var email = data[i].email;
+                    var nm = data[i].name;
+                    var content = "<div style='font-weight:bold;font-size:14px;'>" + nm + "</div><a target='_blank' href='" + wsite + "' id='websiteURL'><?php echo $this->__('View website'); ?></a><br><?php echo $this->__('Phone'); ?>: " + phone + "<br><a href='javascript:void(0);' id='openContactForm' data-id='" + labid + "' data-email='" + email + "'><?php echo $this->__('Send email');?></a>";
+                    jQuery("#loadbar").slideUp('fast');
+                    jQuery("#map").slideDown('fast');
+                    points.push(new google.maps.LatLng(data[i].latitude, data[i].longitude));
+                    markers.push({
+                        lat: data[i].latitude,
+                        lng: data[i].longitude,
+                        title: nm,
+                        labid: labid,
+                        infoWindow: {content: content},
+                        click: focusMarker /**INNER EVENT LISTENER for click on map markers*/
+                    });
+
+                    var address = '';
+                    var extendedAddress = '';
+                    if ((data[i].address2 !== null) && (data[i].address2 !== '')) {
+                        address = data[i].address1 + '<br>' + data[i].address2 + '<br>';
+
+                    } else {
+                        address = data[i].address1 + '<br>';
+                    }
+
+                    if ((data[i].state !== null) && (data[i].state !== '')) {
+                        extendedAddress = data[i].zipcode + ' ' + data[i].city + '<br>' + data[i].state + ' ' + data[i].country
+
+                    } else {
+                        extendedAddress = data[i].zipcode + ' ' + data[i].city + '<br>' + data[i].country
+                    }
+
+                    var column1 = '<div class="resultRow" id="labid-' + labid + '"><div class="col"><div class="columnTitle labName panmarker" data-index="' + i + '">' + nm + '</div>' + '<div class="labAddress">' + address + extendedAddress + '</div></div>';
+                    var column2 = '<div class="col"><div class="columnTitle"><?php echo $this->__('Contact details');?></div><div class="contacts"><ul><li class="phone">' + phone + '</li><li class="email"><span class="openForm" data-id="' + labid + '" data-email="' + email + '"><?php echo $this->__('Send email'); ?></span></div></div>';
+                    var column3 = '<div class="col"><div class="columnTitle"><?php echo $this->__('Speciality services');?></div><div class="details services-info">' + getAttributeHtml(data[i]['services']) + '</div></div>';
+                    var column4 = '<div class="col"><div class="columnTitle"><?php echo $this->__('Products offered');?></div><div class="details products-info">' + getAttributeHtml(data[i]['products']) + '</div></div></div>';
+                    var appnd = column1 + column2 + column3 + column4;
+                    jQuery(".resultsWrapper").append(appnd);
+                }
+                map.addMarkers(markers);
+                var bounds = createBoundsForMarkers(points);
+                var mapDim = {height: 296, width: 700};
+                var centr = bounds.getCenter();
+                map.setCenter(centr.lat(), centr.lng());
+                var zmm = getBoundsZoomLevel(bounds, mapDim);
+                map.setZoom(zmm);
+            }
+
+            resultCenter = map.getCenter();
+            zoomLevel = map.getZoom();
+        };
+
+        /** Show and/or Hide Lab Results depending on which markers are visible */
+        function showVisibleMarkers() {
+            var bounds = map.getBounds(), count = 0;
+            for (var i = 0; i < markers.length; i++) {
+                var marker = markers[i];
+                var labid = marker.labid;
+                var infoPanel = jQuery('#labid-' + labid);
+                var pos = new google.maps.LatLng(marker.lat, marker.lng);
+                if (bounds.contains(pos) === true) {
+                    infoPanel.slideDown('fast');
+                    count++;
+                }
+                else {
+                    infoPanel.slideUp('fast');
+                }
+            }
+        }
+
+        /** EVENT HANDLER for creating new outer bounds when markers are added*/
+        function createBoundsForMarkers(markers) {
+            var bounds = new google.maps.LatLngBounds();
+            jQuery.each(markers, function () {
+                bounds.extend(this);
+            });
+            return bounds;
+        }
+
+        /** Calculates Outer map bounds zoom level for odd map proportions */
+        function getBoundsZoomLevel(bounds, mapDim) {
+            var WORLD_DIM = {height: 256, width: 256};
+            var ZOOM_MAX = 12;
+
+            /** Calculates Latitude's Radians */
+            function latRad(lat) {
+                var sin = Math.sin(lat * Math.PI / 180);
+                var radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
+                return Math.max(Math.min(radX2, Math.PI), -Math.PI) / 2;
+            }
+
+            /** Calculates Zoom Level */
+            function zoom(mapPx, worldPx, fraction) {
+                return Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2);
+            }
+
+            var ne = bounds.getNorthEast();
+            var sw = bounds.getSouthWest();
+            var latFraction = (latRad(ne.lat()) - latRad(sw.lat())) / Math.PI;
+            var lngDiff = ne.lng() - sw.lng();
+            var lngFraction = ((lngDiff < 0) ? (lngDiff + 360) : lngDiff) / 360;
+            var latZoom = zoom(mapDim.height, WORLD_DIM.height, latFraction);
+            var lngZoom = zoom(mapDim.width, WORLD_DIM.width, lngFraction);
+            return Math.min(latZoom, lngZoom, ZOOM_MAX);
+        }
+
+        function searchByName(searchTerm) {
+            jQuery.post('<?php echo $this->getUrl('findalab/index/searchByName'); ?>',
+                {
+                    'searchTerm': searchTerm
+                }, renderResults, 'json')
+                .done(function (data) {
+                })
+                .fail(function (data) {
+                    jQuery("#loadbar").slideUp('fast');
+                    jQuery("#map").slideDown('fast');
+                    showMsg("<?php echo $this->__('Error Processing your request');?>", true);
+                });
+        }
+
+        /** Search Input form submission EVENT LISTENER */
+        jQuery('#geocoding_form').submit(function (e) {
+            e.preventDefault();
+            var searchTerm = jQuery('#address').val().trim();
+
+            var radii = 75;
+            var prods = products;
+            var servs = services;
+
+            if (radius !== 0) {
+                radii = radius;
+            }
+            if (services.length == 0) {
+                servs = null;
+            } else {
+                servs = encodeURI(services);
+            }
+            if (products.length == 0) {
+                prods = null;
+            } else {
+                prods = encodeURI(products);
+            }
+            markers.length > 0 && map.removeMarkers();
+
+            if (!jQuery(".labsFilterWrapper").hasClass('minimized')) {
+                toggleFilters();
+            }
+            GMaps.geocode(
+                {
+                    address: searchTerm,
+                    callback: function (results, status) {
+                        if (status == 'OK') {
+                            jQuery("#resultsCount").slideUp('fast');
+                            var latlng = results[0].geometry.location;
+                            map.setCenter(latlng.lat(), latlng.lng());
+                            jQuery("#map").slideUp('fast');
+                            jQuery("#loadbar").slideDown('fast');
+                            jQuery(".resultsWrapper").html('');
+                            jQuery.post('<?php echo $this->getUrl('findalab/index/search'); ?>',
+                                {
+                                    'lat': latlng.lat(),
+                                    'lng': latlng.lng(),
+                                    'radius': radii,
+                                    'services': servs,
+                                    'products': prods
+                                }, renderResults, 'json')
+                                .done(function (data) {
+                                })
+                                .fail(function (data) {
+                                    jQuery("#loadbar").slideUp('fast');
+                                    jQuery("#map").slideDown('fast');
+                                    showMsg("<?php echo $this->__('Error Processing your request');?>", true);
+                                });
+
+                        } else {
+                            jQuery("#loadbar").slideUp('fast');
+                            showMsg("<?php echo $this->__('Google address service not responding');?>!", true);
+                        }
+                    }
+                });
+
+        });
+
+        /** Filters & checkbox change EVENT LISTENER */
+        jQuery('input[type="checkbox"]').click(function () {
+            var $this = jQuery(this);
+            var name = $this.attr('name');
+            if (name !== "searchByName") {
+
+                var val = $this.attr('data-val');
+                if ($this.is(":checked")) {
+                    switch (name) {
+
+                        case "radius":
+                            if (val > radius) {
+                                radius = val;
+                            }
+                            break;
+
+                        case "services":
+                            services.push(val);
+                            break;
+
+                        case "products":
+                            products.push(val);
+                            break;
+                    }
+                } else {
+
+                    switch (name) {
+
+                        case "radius":
+                            radius = 0;
+                            break;
+
+                        case "services":
+                            var indxx = services.indexOf(val);
+                            services.splice(indxx, 1);
+                            break;
+
+                        case "products":
+                            var indxx = products.indexOf(val);
+                            products.splice(indxx, 1);
+                            break;
+                    }
+                }
+            } else {
+
+            }
+        });
+
+        jQuery('.labsFilterInnerWrap input[name=radius]').on('change', function () {
+            jQuery('.labsFilterInnerWrap input[name=radius]').not(this).prop('checked', false);
+        });
+
+        /** Perfectly Adjusts the width & positioning of both popup form, results wrapper and the Map */
+        var resizeMap = function () {
+            var winW = jQuery(window).width();
+            jQuery(".mapInnerWrapper").css('width', winW);
+            jQuery("#map").css('width', winW);
+            var leftAdjust = ((winW - 960) / 2) * -1;
+            jQuery(".mapInnerWrapper").css('left', leftAdjust);
+            //jQuery(".resultsWrapper").css('left', leftAdjust);
+            //jQuery(".resultsWrapper").css('width', winW);
+            var formAdjust = ((winW - 820) / 2);
+            jQuery(".Overlay-content").css('left', formAdjust);
+            jQuery(".Overlay-content.open").css('left', formAdjust);
+            map.refresh();
+            return false;
+        };
+
+        resizeMap();
+
+        /** Window Resize EVENT LISTENER for trigger page elements resizing */
+        jQuery(window).resize(function () {
+            clearTimeout(resizeID);
+            resizeID = setTimeout(resizeMap, 400);
+        });
+
+        function enableContactFormListeners(labEmail, labID) {
+            jQuery("#emailLabform")[0].reset();
+            var $this = jQuery('#labid-' + labID);
+            var labName = $this.find('.labName').text();
+            var labAddress = $this.find('.labAddress').html();
+            var txt = '<h1 class="b">' + labName + '</h1>' + labAddress;
+            jQuery("#labInfo").html(txt);
+            jQuery(".Overlay-bg").addClass('open');
+            jQuery(".Overlay-bg").children('.Overlay-content').addClass('open');
+            jQuery("#labEmail").val(labEmail);
+            jQuery("#labName").val(labName);
+            jQuery("#labID").val(labID);
+
+            /** EVENT HANDLER for closing the contact form AND disabling the event listeners no longer needed*/
+            var closeForm = function () {
+                jQuery("#cboxClose").parent().removeClass("open");
+                jQuery("#cboxClose").parent().parent().removeClass('open');
+                jQuery(".Overlay-bg").off("click", "#cboxClose");
+                jQuery(document).off("keyup");
+            };
+
+            /**INNER EVENT LISTENER for contact form's close button */
+            jQuery(".Overlay-bg").on("click", "#cboxClose", closeForm);
+
+            /**INNER EVENT LISTENER for ESCAPE Key to close contact form*/
+            jQuery(document).on('keyup', function (evt) {
+                evt.keyCode == 27 && closeForm();
+            });
+        }
+
+        jQuery("#map").on("click", "#openContactForm", function () {
+            var labID = jQuery(this).attr("data-id");
+            var labEmail = jQuery(this).attr('data-email');
+            enableContactFormListeners(labEmail, labID);
+        });
+
+        /** Special LIVE Element (after DOM load) EVENT LISTENER of the Search Results Labs EMAIL CONTACT link */
+        jQuery(".resultsWrapper").on("click", ".openForm", function () {
+            var labEmail = jQuery(this).attr('data-email');
+            var labID = jQuery(this).attr("data-id");
+            enableContactFormListeners(labEmail, labID);
+        });
+    });
+</script>
+
+<div class="mapInnerWrapper">
+    <div id="loadbar"></div>
+    <div id="resultsCount"></div>
+    <div id="map"></div>
+
+    <button id="resetMarkers"><?php echo $this->__('Show all results'); ?></button>
+</div>
